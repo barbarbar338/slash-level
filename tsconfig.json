@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"removeComments": true,
+		"allowSyntheticDefaultImports": true,
+		"target": "es2017",
+		"outDir": "./dist",
+		"baseUrl": "./",
+		"incremental": true,
+		"strict": true,
+		"typeRoots": ["node_modules/@types", "src/@types"]
+	}
+}

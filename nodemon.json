@@ -1,0 +1,4 @@
+{
+	"ext": "ts",
+	"exec": "npm run dev"
+}
