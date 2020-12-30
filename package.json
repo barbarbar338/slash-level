@@ -16,7 +16,9 @@
 		"format:watch": "onchange . -- prettier --write {{changed}}",
 		"lint": "eslint --fix .",
 		"lint:watch": "onchange . -- eslint --fix {{changed}}",
-		"start": "node dist",
+		"pm2:start": "pm2 start dist/index.js --name \"Slash Level\"",
+		"pm2:kill": "pm2 kill",
+		"start": "npm run pm2:start",
 		"dev": "ts-node src",
 		"dev:watch": "nodemon"
 	},
@@ -31,6 +33,7 @@
 		"eslint-plugin-import": "^2.22.1",
 		"nodemon": "^2.0.6",
 		"onchange": "^7.1.0",
+		"pm2": "^4.5.1",
 		"prettier": "^2.2.1",
 		"rimraf": "^3.0.2",
 		"ts-node": "^9.1.1",
