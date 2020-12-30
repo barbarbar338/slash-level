@@ -36,4 +36,5 @@ export const CONFIG = {
 	},
 	DEFAULT_RANK_COLOR: "ffffff",
 	API_URL: "https://discord.com/api/v8",
+	SUPPORT_SERVER: "https://discord.gg/BjEJFwh",
 };

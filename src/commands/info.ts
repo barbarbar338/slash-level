@@ -20,6 +20,10 @@ const InfoCommand: ICommand = {
 			.setFooter("Made with ❤ by barbarbar338 and MuratvaStark")
 			.addField("1 - Add Commands", `[Click!](${CONFIG.SLASH_INVITE})`)
 			.addField("2 - Invite Bot", `[Click!](${CONFIG.DEFAULT_INVITE})`)
+			.addField(
+				"3 - Support Server",
+				`[Click!](${CONFIG.SUPPORT_SERVER})`,
+			)
 			.setDescription(
 				"SlashLevel offers your server a level system with `SlashCommand` feature. SlahCommand is a command system added to Discord with new update.\n\n" +
 					"In order to benefit from this feature, **you have to invite the bot with `SlashCommand` invite url**.\n" +

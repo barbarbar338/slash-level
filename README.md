@@ -14,6 +14,7 @@ Here is an example, thanks for choosing us! (Don't worry, Papa Franku is our tes
 
 -   [Click here to add slash commands](https://discord.com/oauth2/authorize?client_id=602764196622499840&scope=applications.commands) (required)
 -   [Click here to add actual bot](https://discord.com/oauth2/authorize?client_id=602764196622499840&scope=bot&permissions=268725328)
+-   [Support Server](https://discord.gg/BjEJFwh)
 
 # 🥽 Data Types (For Developers)
 
