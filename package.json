@@ -19,10 +19,12 @@
 		"pm2:start": "pm2 start dist/index.js --name \"Slash Level\"",
 		"pm2:kill": "pm2 kill",
 		"start": "npm run pm2:start",
+		"start:prod": "node dist",
 		"dev": "ts-node src",
 		"dev:watch": "nodemon"
 	},
 	"devDependencies": {
+		"@types/express": "^4.17.11",
 		"@types/mongoose": "^5.10.3",
 		"@types/node": "^14.14.16",
 		"@types/node-fetch": "^2.5.7",
@@ -42,6 +44,7 @@
 	"dependencies": {
 		"discord.js": "^12.5.1",
 		"dotenv": "^8.2.0",
+		"express": "^4.17.1",
 		"mongoose": "^5.11.8",
 		"node-fetch": "^2.6.1",
 		"pogger": "^0.0.3"

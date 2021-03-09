@@ -8,6 +8,7 @@ const CLIENT_ID = process.env.CLIENT_ID as string;
 export const CONFIG = {
 	TOKEN: process.env.TOKEN as string,
 	MONGODB_URI: process.env.MONGODB_URI as string,
+	PORT: parseInt(process.env.PORT as string),
 	CLIENT_ID,
 	SLASH_INVITE: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=applications.commands`,
 	DEFAULT_INVITE: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=bot&permissions=268725328`,
