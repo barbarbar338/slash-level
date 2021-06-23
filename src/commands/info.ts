@@ -30,7 +30,7 @@ const InfoCommand: ICommand = {
 					"After adding our bot and the SlashCommand feature to your server, you will see the commands and explanations offered by our bot by typing `/` in any of the text channels.\n\n" +
 					"Here is an example, thanks for choosing us! (Don't worry, Papa Franku is our testing bot)",
 			)
-			.setImage("https://bariscodes.me/slash-example.gif");
+			.setImage(CONFIG.EXAMPLE_GIF);
 		return client.send(
 			interaction,
 			"✨ The first and only SlashCommand based level bot ✨",

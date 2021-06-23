@@ -13,6 +13,7 @@ export const CONFIG = {
 	SLASH_INVITE: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=applications.commands`,
 	DEFAULT_INVITE: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=bot&permissions=268725328`,
 	IMAGE_API_URL: "https://pinkie-api.fly.dev",
+	EXAMPLE_GIF: "https://barbarbar338.fly.dev/slash-example.gif",
 	PRESENCE: {
 		activity: {
 			name: [
