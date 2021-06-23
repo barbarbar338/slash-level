@@ -53,7 +53,7 @@ const RankCommand: ICommand = {
 			});
 		const { xp, level } = guildMemberModel;
 		const requiredXP = calculateRequiredExp(level + 1);
-		const url = `${CONFIG.API_URL}/v2/canvas/rankcard?color=${encodeURIComponent(
+		const url = `${CONFIG.IMAGE_API_URL}/v2/canvas/rankcard?color=${encodeURIComponent(
 			userModel.rankColor,
 		)}&xp=${encodeURIComponent(xp)}&level=${encodeURIComponent(
 			level,
