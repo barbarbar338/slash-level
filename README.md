@@ -8,7 +8,7 @@ After adding our bot and the SlashCommand feature to your server, you will see t
 
 Here is an example, thanks for choosing us! (Don't worry, Papa Franku is our testing bot)
 
-![example](https://bariscodes.me/slash-example.gif)
+![example](https://338.rocks/slash-example.gif)
 
 # 💌 Invite Bot
 
