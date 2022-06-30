@@ -84,7 +84,7 @@ export class Core extends Client {
 			
 			// Discord limits descriptions to 100 characters
 			if (body.description.length > 100) {
-				body.description = body.substring(0, 95) + '...';
+				body.description = body.description.substring(0, 95) + '...';
 			}
 			// Add it to our list
 			cmdList.push(body);
