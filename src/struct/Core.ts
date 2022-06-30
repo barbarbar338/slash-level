@@ -71,6 +71,7 @@ export class Core extends Client {
 
 	private async commandHandler(): Promise<void> {
 		const files = readdirSync(resolve(__dirname, "..", "commands"));
+		const cmdList = [];
 		for (const file of files) {
 			const command = (
 				await import(resolve(__dirname, "..", "commands", file))
@@ -80,14 +81,22 @@ export class Core extends Client {
 				description: command.description,
 				options: command.options,
 			};
-			await makeAPIRequest(
-				`/applications/${CONFIG.CLIENT_ID}/commands`,
-				"POST",
-				body,
-			);
+			
+			// Discord limits descriptions to 100 characters
+			if (body.description.length > 100) {
+				body.description = body.description.substring(0, 95) + '...';
+			}
+			// Add it to our list
+			cmdList.push(body);
 			this.commands.set(command.name, command);
 			pogger.success(`Command loaded: ${command.name}`);
 		}
+		// Use one global request to update all commands.
+		await makeAPIRequest(
+			`/applications/${CONFIG.CLIENT_ID}/commands`,
+			"PUT",
+			JSON.stringify(cmdList),
+		);
 	}
 
 	private async eventHandler() {
