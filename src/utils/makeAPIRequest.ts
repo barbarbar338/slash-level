@@ -5,12 +5,12 @@ import { CONFIG } from "../config";
 export async function makeAPIRequest(
 	path: string,
 	method: string,
-	body: LooseObject,
+	body: LooseObject | string,
 ): Promise<any> {
 	return new Promise((resolve, reject) => {
 		fetch(`${CONFIG.API_URL}${path}`, {
 			method,
-			body: JSON.stringify(body),
+			body: typeof body === 'string' ? body : JSON.stringify(body),
 			headers: {
 				Authorization: `Bot ${CONFIG.TOKEN}`,
 				"Content-Type": "application/json",
