@@ -1,47 +1,53 @@
-import { ICommand } from "my-module";
+import { ChannelType, SlashCommandBuilder } from "discord.js";
 import { GuildModel } from "../models/GuildModel";
 
-const EnableChannelCommand: ICommand = {
-	name: "enablechannel",
-	description: "Enables the level system on the channel you specified.",
-	options: [
-		{
-			name: "channel",
-			description: "Channel to be enabled",
-			required: true,
-			type: 7,
-		},
-	],
-	async execute({ client, interaction, args }) {
-		const guild = client.guilds.cache.get(interaction.guild_id);
-		const member = guild?.members.cache.get(
-			interaction.member.user.id.toString(),
+const EnableChannelCommand: SlashLevel.ICommand = {
+	builder: new SlashCommandBuilder()
+		.setName("enablechannel")
+		.setDescription(
+			"Enables the level system on the channel you specified.",
+		)
+		.addChannelOption((option) =>
+			option
+				.setName("channel")
+				.setDescription("Channel to be enabled")
+				.setRequired(true),
+		) as SlashCommandBuilder,
+	isAdminOnly: true,
+	async execute({ interaction }) {
+		const channel = interaction.guild!.channels.cache.get(
+			interaction.options.getChannel("channel", true).id,
 		);
-		if (!member || !member.permissions.has("ADMINISTRATOR"))
-			return client.send(
-				interaction,
-				"You need `ADMINISTRATOR` permission to use this command.",
-			);
-		const channelID = args[0].value;
-		const channel = guild?.channels.cache.get(channelID);
-		if (channel?.type !== "text")
-			return client.send(
-				interaction,
-				"The channel you specified must be a text channel.",
-			);
+		if (!channel)
+			return interaction.reply({
+				content: "Channel not found.",
+				ephemeral: true,
+			});
+
+		if (channel.type != ChannelType.GuildText)
+			return interaction.reply({
+				content: "The channel you specified is not a text channel.",
+				ephemeral: true,
+			});
+
+		await interaction.deferReply({
+			ephemeral: true,
+		});
+
 		await GuildModel.updateOne(
-			{ guildID: guild?.id },
+			{ guildID: interaction.guild!.id },
 			{
 				$pull: {
-					disabledChannels: channelID,
+					disabledChannels: channel.id,
 				},
 			},
 			{ upsert: true },
 		);
-		return client.send(
-			interaction,
-			"Level system has been enabled for the channel you specified.",
-		);
+
+		interaction.editReply({
+			content:
+				"Level system has been enabled for the channel you specified.",
+		});
 	},
 };
 

@@ -1,48 +1,54 @@
-import { ICommand } from "my-module";
-import { GuildMemberModel } from "../models/GuildMemberModel";
-import { Guild, MessageEmbed } from "discord.js";
-import { UserModel } from "../models/UserModel";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { CONFIG } from "../config";
+import { GuildMemberModel } from "../models/GuildMemberModel";
+import { UserModel } from "../models/UserModel";
 
-const RankCommand: ICommand = {
-	name: "rank",
-	description: "Shows the rank of you or the user you specified.",
-	options: [
-		{
-			name: "user",
-			description: "User to show rank. (Leave empty for personal rank)",
-			type: 6,
-			required: false,
-		},
-	],
-	async execute({ client, interaction, args }) {
-		const id =
-			args && args.length
-				? args[0].value
-				: interaction.member.user.id.toString();
-		const user = client.users.cache.get(id);
-		if (!user)
-			return client.send(
-				interaction,
-				"I could not find the user you specified.",
-			);
+const RankCommand: SlashLevel.ICommand = {
+	builder: new SlashCommandBuilder()
+		.setName("rank")
+		.setDescription("Shows the rank of you or the user you specified.")
+		.addUserOption((option) =>
+			option
+				.setName("user")
+				.setDescription(
+					"User to show rank. (Leave empty for personal rank)",
+				)
+				.setRequired(false),
+		) as SlashCommandBuilder,
+	isAdminOnly: false,
+	async execute({ client, interaction }) {
+		const user = interaction.options.getUser("user", false);
+		const id = user ? user.id : interaction.user.id;
+		const member = interaction.guild!.members.cache.get(id);
+
+		if (!member)
+			return interaction.reply({
+				content: "Member not found.",
+				ephemeral: true,
+			});
+
+		await interaction.deferReply();
+
 		const guildMemberModel = await GuildMemberModel.findOne({
-			guildID: interaction.guild_id,
-			userID: user.id,
+			guildID: interaction.guild!.id,
+			userID: member.id,
 		});
 		if (!guildMemberModel)
-			return client.send(
-				interaction,
-				"The user you specified has no level data. How would you like to start a chat with him/her?",
-			);
+			return interaction.reply({
+				content:
+					"The user you specified has no level data. How would you like to start a chat with him/her?",
+			});
+
 		const ranks = await GuildMemberModel.find({
-			guildID: interaction.guild_id,
+			guildID: interaction.guild!.id,
 		}).sort({
 			xp: -1,
 		});
+
 		const index = ranks.findIndex(
-			(guildMemberData) => guildMemberData.userID === user.id,
+			(guildMemberData) => guildMemberData.userID === member.id,
 		);
+
 		let userModel = await UserModel.findOne({
 			userID: guildMemberModel.userID,
 		});
@@ -51,40 +57,46 @@ const RankCommand: ICommand = {
 				userID: guildMemberModel.userID,
 				rankColor: CONFIG.DEFAULT_RANK_COLOR,
 			});
+
 		const { xp, level } = guildMemberModel;
-		const requiredXP = calculateRequiredExp(level + 1);
-		const url = `${CONFIG.IMAGE_API_URL}/v2/canvas/rankcard?color=${encodeURIComponent(
+		const requiredXP = client.utils.calculateRequiredExp(level + 1);
+
+		const url = `${
+			CONFIG.IMAGE_API_URL
+		}/v2/canvas/rankcard?color=${encodeURIComponent(
 			userModel.rankColor,
 		)}&xp=${encodeURIComponent(xp)}&level=${encodeURIComponent(
 			level,
 		)}&xpToLevel=${encodeURIComponent(
 			requiredXP,
 		)}&position=${encodeURIComponent(index + 1)}&tag=${encodeURIComponent(
-			user.tag,
+			member.user.tag,
 		)}&status=${encodeURIComponent(
-			user.presence.status,
+			member.presence?.status || "invisible",
 		)}&avatarURL=${encodeURIComponent(
-			user.displayAvatarURL({ format: "png" }),
+			member.displayAvatarURL({
+				extension: "png",
+			}),
 		)}`;
-		const member = (client.guilds.cache.get(
-			interaction.guild_id,
-		) as Guild).member(user);
-		const embed = new MessageEmbed()
+
+		const embed = new EmbedBuilder()
 			.setColor(
 				member ? member.displayHexColor : `#${userModel.rankColor}`,
 			)
-			.setAuthor(user.tag, user.displayAvatarURL({ dynamic: true }), url)
+			.setAuthor({
+				name: member.user.tag,
+				iconURL: member.displayAvatarURL({
+					extension: "png",
+				}),
+				url,
+			})
 			.setImage(url);
-		return client.send(
-			interaction,
-			`🏆 Rank card of **${user.tag}**\n`,
-			embed,
-		);
+
+		return interaction.editReply({
+			content: `🏆 Rank card of **${member.user.tag}**`,
+			embeds: [embed],
+		});
 	},
 };
-
-function calculateRequiredExp(level: number): number {
-	return Math.floor((level / 0.15) * (level / 0.15));
-}
 
 export default RankCommand;

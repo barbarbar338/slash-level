@@ -1,41 +1,53 @@
-import { ICommand } from "my-module";
+import { SlashCommandBuilder } from "discord.js";
 import { GuildModel } from "../models/GuildModel";
 
-const EnableRoleCommand: ICommand = {
-	name: "enablerole",
-	description: "Enables the level system for the role you specified.",
-	options: [
-		{
-			name: "role",
-			description: "Role to be enabled",
-			required: true,
-			type: 8,
-		},
-	],
-	async execute({ client, interaction, args }) {
-		const guild = client.guilds.cache.get(interaction.guild_id);
-		const member = guild?.members.cache.get(
-			interaction.member.user.id.toString(),
+const EnableRoleCommand: SlashLevel.ICommand = {
+	builder: new SlashCommandBuilder()
+		.setName("enablerole")
+		.setDescription("Enables the level system for the role you specified.")
+		.addRoleOption((option) =>
+			option
+				.setName("role")
+				.setDescription("Role to be enabled")
+				.setRequired(true),
+		) as SlashCommandBuilder,
+	isAdminOnly: true,
+	async execute({ interaction }) {
+		const role = interaction.guild?.roles.cache.get(
+			interaction.options.getRole("role", true).id,
 		);
-		if (!member || !member.permissions.has("ADMINISTRATOR"))
-			return client.send(
-				interaction,
-				"You need `ADMINISTRATOR` permission to use this command.",
-			);
-		const roleID = args[0].value;
+
+		if (!role)
+			return interaction.reply({
+				content: "Role not found.",
+				ephemeral: true,
+			});
+
+		if (!role.editable)
+			return interaction.reply({
+				content:
+					"I do not have permission to manage the role you specified.",
+				ephemeral: true,
+			});
+
+		await interaction.deferReply({
+			ephemeral: true,
+		});
+
 		await GuildModel.updateOne(
-			{ guildID: guild?.id },
+			{ guildID: interaction.guild!.id },
 			{
 				$pull: {
-					disabledRoles: roleID,
+					disabledRoles: role.id,
 				},
 			},
 			{ upsert: true },
 		);
-		return client.send(
-			interaction,
-			"Level system has been enabled for the role you specified.",
-		);
+
+		interaction.editReply({
+			content:
+				"Level system has been enabled for the role you specified.",
+		});
 	},
 };
 

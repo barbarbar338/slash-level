@@ -10,10 +10,10 @@ export const CONFIG = {
 	MONGODB_URI: process.env.MONGODB_URI as string,
 	PORT: parseInt(process.env.PORT as string),
 	CLIENT_ID,
-	SLASH_INVITE: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=applications.commands`,
-	DEFAULT_INVITE: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=bot&permissions=268725328`,
-	IMAGE_API_URL: "https://pinkie-api.fly.dev",
-	EXAMPLE_GIF: "https://barbarbar338.fly.dev/slash-example.gif",
+	INVITE: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=bot+applications.commands&permissions=268725328`,
+	IMAGE_API_URL: "https://api.338.rocks",
+	EXAMPLE_GIF: "https://338.rocks/slash-example.gif",
+	REPO_URL: "https://github.com/barisbored/slash-level",
 	PRESENCE: {
 		activity: {
 			name: [
@@ -31,13 +31,14 @@ export const CONFIG = {
 				"use /setcolor to set your preffered rank card color",
 				"use /setmessage to set level up message",
 			],
-			type: ["WATCHING", "LISTENING", "COMPETING"] as ActivityType[],
+			type: [
+				ActivityType.Playing,
+				ActivityType.Listening,
+				ActivityType.Watching,
+			],
 		},
 		status: ["idle", "online", "dnd"] as PresenceStatusData[],
-		afk: false,
-		shardID: 0,
 	},
 	DEFAULT_RANK_COLOR: "ffffff",
-	API_URL: "https://discord.com/api/v8",
 	SUPPORT_SERVER: "https://discord.gg/BjEJFwh",
 };

@@ -1,14 +1,14 @@
-import { ICommand } from "my-module";
+import { SlashCommandBuilder } from "discord.js";
 
-const PingCommand: ICommand = {
-	name: "ping",
-	description: "Shows the bot's ping.",
-	options: [],
+const PingCommand: SlashLevel.ICommand = {
+	builder: new SlashCommandBuilder()
+		.setName("ping")
+		.setDescription("Shows the bot's ping."),
+	isAdminOnly: false,
 	async execute({ client, interaction }) {
-		return client.send(
-			interaction,
-			`:ping_pong: Pong! ${client.ws.ping}ms`,
-		);
+		return interaction.reply({
+			content: `:ping_pong: Pong! ${client.ws.ping}ms`,
+		});
 	},
 };
 

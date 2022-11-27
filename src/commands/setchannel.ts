@@ -1,57 +1,47 @@
-import { ICommand } from "my-module";
+import { SlashCommandBuilder } from "discord.js";
 import { GuildModel } from "../models/GuildModel";
 
-const SetChannelCommand: ICommand = {
-	name: "setchannel",
-	description:
-		"Sets the channel of the server where the message will be sent when someone levels up.",
-	options: [
-		{
-			name: "channel",
-			description: "Channel to set",
-			required: false,
-			type: 7,
-		},
-	],
-	async execute({ client, interaction, args }) {
-		const guild = client.guilds.cache.get(interaction.guild_id);
-		const member = guild?.members.cache.get(
-			interaction.member.user.id.toString(),
+const SetChannelCommand: SlashLevel.ICommand = {
+	builder: new SlashCommandBuilder()
+		.setName("setchannel")
+		.setDescription(
+			"Sets the channel of the server where the message will be sent when someone levels up.",
+		)
+		.addChannelOption((option) =>
+			option
+				.setName("channel")
+				.setDescription("Channel to set")
+				.setRequired(false),
+		) as SlashCommandBuilder,
+	isAdminOnly: false,
+	async execute({ interaction }) {
+		await interaction.deferReply({
+			ephemeral: true,
+		});
+
+		const channel = interaction.options.getChannel("channel", false);
+		await GuildModel.updateOne(
+			{
+				guildID: interaction.guild!.id,
+			},
+			{
+				levelupChannel: channel ? channel.id : null,
+			},
+			{ upsert: true },
 		);
-		if (!member || !member.permissions.has("ADMINISTRATOR"))
-			return client.send(
-				interaction,
-				"You need `ADMINISTRATOR` permission to use this command.",
-			);
-		if (args) {
-			await GuildModel.updateOne(
-				{
-					guildID: interaction.guild_id,
-				},
-				{
-					levelupChannel: args[0].value,
-				},
-				{ upsert: true },
-			);
-			return client.send(
-				interaction,
-				"Your server's level up channel has been updated successfully.",
-			);
-		} else {
-			await GuildModel.updateOne(
-				{
-					guildID: interaction.guild_id,
-				},
-				{
-					levelupChannel: undefined,
-				},
-				{ upsert: true },
-			);
-			return client.send(
-				interaction,
-				"Your server's level channel has been successfully reset. When someone levels up, the level message will be sent into the channel the user leveled up.",
-			);
-		}
+
+		let reply: string;
+
+		if (channel)
+			reply =
+				"Your server's level up channel has been updated successfully.";
+		else
+			reply =
+				"Your server's level channel has been successfully reset. When someone levels up, the level message will be sent into the channel the user leveled up.";
+
+		interaction.editReply({
+			content: reply,
+		});
 	},
 };
 

@@ -1,72 +1,41 @@
-import {
-	Client,
-	APIMessage,
-	MessageOptions,
-	MessageAdditions,
-	TextChannel,
-	Collection,
-} from "discord.js";
-import { CONFIG } from "../config";
+import { Logger } from "@hammerhq/logger";
+import { ActivityType, Client, Collection, REST, Routes } from "discord.js";
 import { readdirSync } from "fs";
-import { ICommand, IEvent, SlashResponse } from "my-module";
-import { resolve } from "path";
-import * as pogger from "pogger";
 import { connect } from "mongoose";
-import { makeAPIRequest } from "../utils/makeAPIRequest";
+import { resolve } from "path";
+import { CONFIG } from "../config";
+import { Utils } from "./Utils";
+
+const utils = new Utils();
 
 export class Core extends Client {
 	public config = CONFIG;
-	public commands = new Collection<string, ICommand>();
+	public commands = new Collection<string, SlashLevel.ICommand>();
+	public logger = new Logger("[Core]:");
+	public rest = new REST({ version: "10" }).setToken(CONFIG.TOKEN);
+	public utils = utils;
 
 	constructor() {
 		super({
 			presence: {
-				activity: {
-					name: random(CONFIG.PRESENCE.activity.name),
-					type: random(CONFIG.PRESENCE.activity.type),
-				},
-				status: random(CONFIG.PRESENCE.status),
-				afk: CONFIG.PRESENCE.afk,
-				shardID: CONFIG.PRESENCE.shardID,
+				activities: [
+					{
+						name: utils.random(CONFIG.PRESENCE.activity.name),
+						type: utils.random(
+							CONFIG.PRESENCE.activity.type,
+						) as ActivityType.Playing, // IDK why discord.js doesn't accepts this bu we can trick it this way
+					},
+				],
+				status: utils.random(CONFIG.PRESENCE.status),
 			},
+			intents: [
+				"GuildIntegrations",
+				"GuildMembers",
+				"GuildMessages",
+				"Guilds",
+				"MessageContent",
+			],
 		});
-	}
-
-	private async createAPIMessage(
-		interaction: SlashResponse,
-		content: string | APIMessage,
-		options: MessageAdditions | MessageOptions = {},
-	): Promise<APIMessage> {
-		if (!(content instanceof APIMessage))
-			content = APIMessage.create(
-				this.channels.resolve(interaction.channel_id) as TextChannel,
-				content,
-				options,
-			);
-		const data = content.resolveData();
-		return data;
-	}
-
-	public async send(
-		interaction: SlashResponse,
-		content: string | APIMessage,
-		options?: MessageAdditions | MessageOptions,
-	): Promise<unknown> {
-		const { data } = await this.createAPIMessage(
-			interaction,
-			content,
-			options,
-		);
-		const body = {
-			type: 4,
-			data,
-		};
-		const res = await makeAPIRequest(
-			`/interactions/${interaction.id}/${interaction.token}/callback`,
-			"POST",
-			body,
-		);
-		return res;
 	}
 
 	private async commandHandler(): Promise<void> {
@@ -75,28 +44,18 @@ export class Core extends Client {
 		for (const file of files) {
 			const command = (
 				await import(resolve(__dirname, "..", "commands", file))
-			).default as ICommand;
-			const body = {
-				name: command.name,
-				description: command.description,
-				options: command.options,
-			};
-			
-			// Discord limits descriptions to 100 characters
-			if (body.description.length > 100) {
-				body.description = body.description.substring(0, 95) + '...';
-			}
-			// Add it to our list
-			cmdList.push(body);
-			this.commands.set(command.name, command);
-			pogger.success(`Command loaded: ${command.name}`);
+			).default as SlashLevel.ICommand;
+
+			this.commands.set(command.builder.name, command);
+			cmdList.push(command.builder.toJSON());
+			this.logger.success(`Command loaded: ${command.builder.name}`);
 		}
-		// Use one global request to update all commands.
-		await makeAPIRequest(
-			`/applications/${CONFIG.CLIENT_ID}/commands`,
-			"PUT",
-			JSON.stringify(cmdList),
-		);
+
+		this.logger.info("Posting commands to Discord API");
+		await this.rest.put(Routes.applicationCommands(this.config.CLIENT_ID), {
+			body: cmdList,
+		});
+		this.logger.success(`Commands successfully posted`);
 	}
 
 	private async eventHandler() {
@@ -104,29 +63,26 @@ export class Core extends Client {
 		for (const file of files) {
 			const event = (
 				await import(resolve(__dirname, "..", "events", file))
-			).default as IEvent;
+			).default as SlashLevel.IEvent;
 			this.on(event.name, (...args: unknown[]) =>
 				event.execute(this, ...args),
 			);
-			pogger.success(`Event loaded: ${event.name}`);
+			this.logger.success(`Event loaded: ${event.name}`);
 		}
 	}
 
 	public async connect(): Promise<string> {
-		pogger.info("Loading files...");
+		this.logger.info("Loading files...");
+
 		await this.eventHandler();
 		await this.commandHandler();
-		pogger.info("Connecting to MongoDB");
-		await connect(CONFIG.MONGODB_URI, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-			useFindAndModify: false,
-		});
-		pogger.info("Connecting to Discord API");
+
+		this.logger.info("Connecting to MongoDB");
+
+		await connect(CONFIG.MONGODB_URI);
+
+		this.logger.info("Connecting to Discord API");
+
 		return await this.login(CONFIG.TOKEN);
 	}
-}
-
-function random<T>(array: T[]): T {
-	return array[Math.floor(Math.random() * array.length)];
 }

@@ -1,57 +1,49 @@
-import { ICommand } from "my-module";
+import { SlashCommandBuilder } from "discord.js";
 import { GuildModel } from "../models/GuildModel";
 
-const SetMessageCommand: ICommand = {
-	name: "setmessage",
-	description:
-		"Sets the level up message of the server to be sent when someone levels up. use %{member} to mention member,  %{level} to see member's level and %{guild} to use guild's name.",
-	options: [
-		{
-			name: "message",
-			description: "Level up message to set",
-			required: false,
-			type: 3,
-		},
-	],
-	async execute({ client, interaction, args }) {
-		const guild = client.guilds.cache.get(interaction.guild_id);
-		const member = guild?.members.cache.get(
-			interaction.member.user.id.toString(),
+const SetMessageCommand: SlashLevel.ICommand = {
+	builder: new SlashCommandBuilder()
+		.setName("setmessage")
+		.setDescription(
+			"Sets the level up message of the server to be sent when someone levels up.",
+		)
+		.addStringOption((option) =>
+			option
+				.setName("message")
+				.setDescription(
+					"Level up message to set (%{member}, %{level}, %{guild})",
+				)
+				.setRequired(false),
+		) as SlashCommandBuilder,
+	isAdminOnly: true,
+	async execute({ interaction }) {
+		await interaction.deferReply({
+			ephemeral: true,
+		});
+
+		const message = interaction.options.getString("message", false);
+
+		await GuildModel.updateOne(
+			{
+				guildID: interaction.guild!.id,
+			},
+			{
+				levelupMessage: message,
+			},
+			{ upsert: true },
 		);
-		if (!member || !member.permissions.has("ADMINISTRATOR"))
-			return client.send(
-				interaction,
-				"You need `ADMINISTRATOR` permission to use this command.",
-			);
-		if (args) {
-			await GuildModel.updateOne(
-				{
-					guildID: interaction.guild_id,
-				},
-				{
-					levelupMessage: args[0].value,
-				},
-				{ upsert: true },
-			);
-			return client.send(
-				interaction,
-				"Your server's level up message has been updated successfully.",
-			);
-		} else {
-			await GuildModel.updateOne(
-				{
-					guildID: interaction.guild_id,
-				},
-				{
-					levelupMessage: undefined,
-				},
-				{ upsert: true },
-			);
-			return client.send(
-				interaction,
-				"Your server's level up has been successfully reset. When someone levels up, the level message will be sent into the channel the user leveled up.",
-			);
-		}
+
+		let reply: string;
+		if (message)
+			reply =
+				"Your server's level up message has been updated successfully.";
+		else
+			reply =
+				"Your server's level up has been successfully reset. When someone levels up, the level message will be sent into the channel the user leveled up.";
+
+		interaction.editReply({
+			content: reply,
+		});
 	},
 };
 

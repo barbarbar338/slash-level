@@ -1,12 +1,9 @@
 import { Core } from "./struct/Core";
-import * as express from "express";
-import { CONFIG } from "./config";
-import * as pogger from "pogger";
+import { HTTP } from "./struct/HTTP";
+
 const client = new Core();
-const app = express();
-app.use((req, res) => res.sendStatus(200));
+const http = new HTTP(client);
+
 client.connect().then(() => {
-	app.listen(CONFIG.PORT, "0.0.0.0", () => {
-		pogger.success("Express server started");
-	});
+	http.init();
 });

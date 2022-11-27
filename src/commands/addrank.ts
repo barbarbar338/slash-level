@@ -1,42 +1,48 @@
-import { ICommand } from "my-module";
+import { SlashCommandBuilder } from "discord.js";
 import { GuildModel } from "../models/GuildModel";
 
-const AddRankCommand: ICommand = {
-	name: "addrank",
-	description: "Adds a reward role for the level you specified.",
-	options: [
-		{
-			name: "level",
-			description: "The level at which the prize is awarded",
-			required: true,
-			type: 4,
-		},
-		{
-			name: "role",
-			description: "Reward role",
-			required: true,
-			type: 8,
-		},
-	],
-	async execute({ client, interaction, args }) {
-		const guild = client.guilds.cache.get(interaction.guild_id);
-		const member = guild?.members.cache.get(
-			interaction.member.user.id.toString(),
+const AddRankCommand: SlashLevel.ICommand = {
+	builder: new SlashCommandBuilder()
+		.setName("addrank")
+		.setDescription("Adds a reward role for the level you specified.")
+		.addNumberOption((option) =>
+			option
+				.setName("level")
+				.setDescription("The level at which the prize is awarded")
+				.setRequired(true),
+		)
+		.addRoleOption((option) =>
+			option
+				.setName("role")
+				.setDescription("Reward role")
+				.setRequired(true),
+		) as SlashCommandBuilder,
+	isAdminOnly: true,
+	async execute({ interaction }) {
+		const prefferedLevel = interaction.options.getNumber("level", true);
+		const role = interaction.guild?.roles.cache.get(
+			interaction.options.getRole("role", true).id,
 		);
-		if (!member || !member.permissions.has("ADMINISTRATOR"))
-			return client.send(
-				interaction,
-				"You need `ADMINISTRATOR` permission to use this command.",
-			);
-		const prefferedLevel = parseInt(args[0].value);
-		const role = guild?.roles.cache.get(args[1].value);
-		if (!role?.editable)
-			return client.send(
-				interaction,
-				"I do not have permission to manage the role you specified.",
-			);
+
+		if (!role)
+			return interaction.reply({
+				content: "Role not found.",
+				ephemeral: true,
+			});
+
+		if (!role.editable)
+			return interaction.reply({
+				content:
+					"I do not have permission to manage the role you specified.",
+				ephemeral: true,
+			});
+
+		await interaction.deferReply({
+			ephemeral: true,
+		});
+
 		const guildModel = await GuildModel.findOne({
-			guildID: guild?.id,
+			guildID: interaction.guild!.id,
 		});
 		const rewards =
 			guildModel && guildModel.rewards ? guildModel.rewards : [];
@@ -49,16 +55,21 @@ const AddRankCommand: ICommand = {
 				level: prefferedLevel,
 				roleIDs: [role.id],
 			};
+
 		const filtered = rewards.filter(
 			({ level }) => level !== prefferedLevel,
 		);
 		filtered.push(existing);
+
 		await GuildModel.updateOne(
-			{ guildID: guild?.id },
+			{ guildID: interaction.guild!.id },
 			{ rewards: filtered },
 			{ upsert: true },
 		);
-		client.send(interaction, "Reward has been successfully added.");
+
+		interaction.editReply({
+			content: "Reward has been successfully added.",
+		});
 	},
 };
 

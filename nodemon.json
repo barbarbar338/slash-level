@@ -1,4 +1,4 @@
 {
 	"ext": "ts",
-	"exec": "npm run dev"
+	"exec": "ts-node src"
 }
