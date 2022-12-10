@@ -17,7 +17,7 @@ const InfoCommand: SlashLevel.ICommand = {
 			.setFooter({
 				text: `Made with ❤️ by barbarbar338 and MuratvaStark`,
 				iconURL:
-					"https://cdn.338.rocks/v1/storage/uploads/branding/icon.png",
+					"https://worker.338.rocks/storage/uploads/branding/icon.png",
 			})
 			.addFields([
 				{
