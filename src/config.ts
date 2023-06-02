@@ -4,14 +4,16 @@ import { config } from "dotenv";
 config();
 
 const CLIENT_ID = process.env.CLIENT_ID as string;
+const IS_DEV = process.env.NODE_ENV === "development";
 
 export const CONFIG = {
+	IS_DEV,
 	TOKEN: process.env.TOKEN as string,
 	MONGODB_URI: process.env.MONGODB_URI as string,
 	PORT: parseInt(process.env.PORT as string),
 	CLIENT_ID,
 	INVITE: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=bot+applications.commands&permissions=268725328`,
-	IMAGE_API_URL: "https://api.338.rocks",
+	IMAGE_API_URL: "https://pinkie-api.fly.dev",
 	EXAMPLE_GIF: "https://338.rocks/slash-example.gif",
 	REPO_URL: "https://github.com/barisbored/slash-level",
 	PRESENCE: {
