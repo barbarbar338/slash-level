@@ -38,6 +38,11 @@ const LeaderboardsCommand: SlashLevel.ICommand = {
 			xp: -1,
 		});
 
+		if (!ranks.length)
+			return interaction.editReply({
+				content: "No one has gained XP yet.",
+			});
+
 		const userIndex = ranks.findIndex(
 			(guildMemberData) => guildMemberData.userID === member.id,
 		);

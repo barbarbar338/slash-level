@@ -34,7 +34,7 @@ const RankCommand: SlashLevel.ICommand = {
 			userID: member.id,
 		});
 		if (!guildMemberModel)
-			return interaction.reply({
+			return interaction.editReply({
 				content:
 					"The user you specified has no level data. How would you like to start a chat with him/her?",
 			});
