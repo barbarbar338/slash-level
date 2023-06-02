@@ -1,6 +1,7 @@
 import { Logger } from "@hammerhq/logger";
 import { ActivityType, Client, Collection, REST, Routes } from "discord.js";
 import { readdirSync } from "fs";
+import { MongoMemoryServer } from "mongodb-memory-server";
 import { connect } from "mongoose";
 import { resolve } from "path";
 import { CONFIG } from "../config";
@@ -78,6 +79,17 @@ export class Core extends Client {
 		await this.commandHandler();
 
 		this.logger.info("Connecting to MongoDB");
+
+		if (CONFIG.IS_DEV) {
+			this.logger.warning(
+				"Creating a MongoDB mock server for development",
+			);
+			const mongod = await MongoMemoryServer.create();
+			CONFIG.MONGODB_URI = mongod.getUri();
+			this.logger.success(
+				"MongoDB mock server created and MONGODB_URI variable changed!",
+			);
+		}
 
 		await connect(CONFIG.MONGODB_URI);
 
