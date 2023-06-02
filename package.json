@@ -14,9 +14,9 @@
 		"build": "tsc",
 		"format": "prettier --write .",
 		"lint": "eslint --fix .",
-		"start": "node dist",
-		"dev": "ts-node src",
-		"dev:watch": "nodemon",
+		"start": "cross-env NODE_ENV=production node dist",
+		"dev": "cross-env NODE_ENV=development ts-node src",
+		"dev:watch": "cross-env NODE_ENV=development nodemon",
 		"update": "taze latest -w"
 	},
 	"devDependencies": {
@@ -44,3 +44,4 @@
 		"mongoose": "^7.2.2"
 	}
 }
+
