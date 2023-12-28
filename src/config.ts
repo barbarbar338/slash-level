@@ -13,7 +13,7 @@ export const CONFIG = {
 	PORT: parseInt(process.env.PORT as string),
 	CLIENT_ID,
 	INVITE: `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=bot+applications.commands&permissions=268725328`,
-	IMAGE_API_URL: "https://pinkie-api.fly.dev",
+	IMAGE_API_URL: "http://localhost:3000/imageApi",
 	EXAMPLE_GIF: "https://338.rocks/slash-example.gif",
 	REPO_URL: "https://github.com/barisbored/slash-level",
 	PRESENCE: {

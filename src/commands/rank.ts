@@ -1,7 +1,13 @@
-import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { Embed, EmbedBuilder, SlashCommandBuilder,AttachmentBuilder } from "discord.js";
 import { CONFIG } from "../config";
 import { GuildMemberModel } from "../models/GuildMemberModel";
 import { UserModel } from "../models/UserModel";
+import { createCanvas, loadImage, registerFont } from "canvas";
+
+registerFont(__dirname + '/../assets/fonts/Poppins-Bold.ttf', { family: 'Poppins Bold' });
+registerFont(__dirname + '/../assets/fonts/Poppins-Light.ttf', { family: 'Poppins Light' });
+registerFont(__dirname + '/../assets/fonts/Poppins-Regular.ttf', { family: 'Poppins Regular' });
+
 
 const RankCommand: SlashLevel.ICommand = {
 	builder: new SlashCommandBuilder()
@@ -61,40 +67,16 @@ const RankCommand: SlashLevel.ICommand = {
 		const { xp, level } = guildMemberModel;
 		const requiredXP = client.utils.calculateRequiredExp(level + 1);
 
-		const url = `${
-			CONFIG.IMAGE_API_URL
-		}/v2/canvas/rankcard?color=${encodeURIComponent(
-			userModel.rankColor,
-		)}&xp=${encodeURIComponent(xp)}&level=${encodeURIComponent(
-			level,
-		)}&xpToLevel=${encodeURIComponent(
-			requiredXP,
-		)}&position=${encodeURIComponent(index + 1)}&tag=${encodeURIComponent(
-			member.user.tag,
-		)}&status=${encodeURIComponent(
-			member.presence?.status || "invisible",
-		)}&avatarURL=${encodeURIComponent(
-			member.displayAvatarURL({
-				extension: "png",
-			}),
-		)}`;
 
-		const embed = new EmbedBuilder()
-			.setColor(
-				member ? member.displayHexColor : `#${userModel.rankColor}`,
-			)
-			.setAuthor({
-				name: member.user.tag,
-				iconURL: member.displayAvatarURL({
-					extension: "png",
-				}),
-				url,
-			})
-			.setImage(url);
+		const img = await client.utils.createImage(member.user.tag,level,xp,requiredXP,member.displayAvatarURL({
+			extension: "png",
+		}))
 
+
+		const file = new AttachmentBuilder(img);
 		return interaction.editReply({
 			content: `🏆 Rank card of **${member.user.tag}**`,
-			embeds: [embed],
+			files: [file]
 		});
 	},
 };
