@@ -63,7 +63,7 @@ const RankCommand: SlashLevel.ICommand = {
 
 		const url = `${
 			CONFIG.IMAGE_API_URL
-		}/v2/canvas/rankcard?color=${encodeURIComponent(
+		}/?color=${encodeURIComponent(
 			userModel.rankColor,
 		)}&xp=${encodeURIComponent(xp)}&level=${encodeURIComponent(
 			level,
