@@ -82,6 +82,6 @@ export class Utils {
 
 		const short = " kMGTPE"[length / 3];
 
-		return (outputNum + short).trim();
+		return longNumber < 999 ? `${longNumber}` : (outputNum + short).trim();
 	};
 }
