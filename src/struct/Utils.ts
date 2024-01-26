@@ -125,7 +125,7 @@ export class Utils {
 		context.font = "13pt 'Poppins Light'";
 		context.textAlign = "left";
 		context.fillStyle = "#fff";
-		context.fillText("Aktif Sesli Sohbet Süresi: " + String(Math.ceil(post.time / 1000 / 60) + "dk."), 524, 125);
+		context.fillText("Voice Chat Time: " + String(Math.ceil(post.time / 1000 / 60) + "mins."), 524, 125);
 		/** Texts **/
 
 		/** Background PINS **/
