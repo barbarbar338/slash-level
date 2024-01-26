@@ -46,12 +46,6 @@ const RankCommand: SlashLevel.ICommand = {
 					"The user you specified has no level data. How would you like to start a chat with him/her?",
 			});
 
-		const ranks = await GuildMemberModel.find({
-			guildID: interaction.guild!.id,
-		}).sort({
-			xp: -1,
-		});
-
 		let userModel = await UserModel.findOne({
 			userID: guildMemberModel.userID,
 		});
