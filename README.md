@@ -10,7 +10,24 @@ Here is an example, thanks for choosing us! (Don't worry, Papa Franku is our tes
 
 ![example](https://338.rocks/slash-example.gif)
 
+# ✨ Features
+- Leveling
+- Custom level role rewards
+- Custom level-up messages
+- Custom level-up message channels
+- Disabling/Enabling xp for channel/role
+- Voice activity tracking
+- Message count tracking
+
 # 💌 Invite Bot
 
--   [Click here to add slash commands](https://discord.com/oauth2/authorize?client_id=602764196622499840&scope=bot+applications.commands&permissions=268725328)
+-   [Click here to invite Slash Level](https://discord.com/oauth2/authorize?client_id=602764196622499840&scope=bot+applications.commands&permissions=268725328)
 -   [Support Server](https://discord.gg/BjEJFwh)
+
+# 🎯 TODO
+- [ ] Full structure re-write
+- [ ] Switch to PostgreSQL
+- [ ] Create monorepo
+    - [ ] Create bot app
+    - [ ] Create api app
+    - [ ] Create web app
