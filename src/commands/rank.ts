@@ -1,8 +1,9 @@
-import { Embed, EmbedBuilder, SlashCommandBuilder,AttachmentBuilder } from "discord.js";
+import { SlashCommandBuilder,AttachmentBuilder } from "discord.js";
 import { CONFIG } from "../config";
 import { GuildMemberModel } from "../models/GuildMemberModel";
 import { UserModel } from "../models/UserModel";
-import { createCanvas, loadImage, registerFont } from "canvas";
+import { registerFont } from "canvas";
+import { GuildMemberVoiceModel } from "../models/GuildMemberVoiceModel";
 
 registerFont(__dirname + '/../assets/fonts/Poppins-Bold.ttf', { family: 'Poppins Bold' });
 registerFont(__dirname + '/../assets/fonts/Poppins-Light.ttf', { family: 'Poppins Light' });
@@ -45,16 +46,6 @@ const RankCommand: SlashLevel.ICommand = {
 					"The user you specified has no level data. How would you like to start a chat with him/her?",
 			});
 
-		const ranks = await GuildMemberModel.find({
-			guildID: interaction.guild!.id,
-		}).sort({
-			xp: -1,
-		});
-
-		const index = ranks.findIndex(
-			(guildMemberData) => guildMemberData.userID === member.id,
-		);
-
 		let userModel = await UserModel.findOne({
 			userID: guildMemberModel.userID,
 		});
@@ -67,10 +58,19 @@ const RankCommand: SlashLevel.ICommand = {
 		const { xp, level } = guildMemberModel;
 		const requiredXP = client.utils.calculateRequiredExp(level + 1);
 
-
+		const dateObj = new Date();
+		const month = dateObj.getUTCMonth() + 1;
+		const year = dateObj.getUTCFullYear();
+		const newDate = `${year}/${month}`;
+		let voiceModel = await GuildMemberVoiceModel.findOne({
+			guildID: member.guild.id,
+			userID: member.id,
+			month: newDate
+		});
+		const userTime = !voiceModel ? 0 : voiceModel.time;
 		const img = await client.utils.createImage(member.user.tag,level,xp,requiredXP,member.displayAvatarURL({
 			extension: "png",
-		}))
+		}),userTime)
 
 
 		const file = new AttachmentBuilder(img);

@@ -15,6 +15,7 @@ export class Core extends Client {
 	public logger = new Logger("[Core]:");
 	public rest = new REST({ version: "10" }).setToken(CONFIG.TOKEN);
 	public utils = utils;
+	public voiceUsers:Map<string, number> = new Map()
 
 	constructor() {
 		super({
@@ -35,6 +36,7 @@ export class Core extends Client {
 				"GuildMessages",
 				"Guilds",
 				"MessageContent",
+				"GuildVoiceStates"
 			],
 		});
 	}

@@ -1,4 +1,4 @@
-import { Canvas, Image, createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage } from "canvas";
 
 export class Utils {
 
@@ -87,13 +87,14 @@ export class Utils {
 		return longNumber < 999 ? `${longNumber}` : (outputNum + short).trim();
 	};
 
-	public createImage = async (tag: any, level: any, xp: any, requiredXP: any, avatar: any) => {
+	public createImage = async (tag: any, level: any, xp: any, requiredXP: any, avatar: any, userTime: number) => {
 		const post = {
 			nickname: tag,
 			rank: level,
 			xp: xp,
 			toLevel: requiredXP,
-			avatar: avatar
+			avatar: avatar,
+			time: userTime
 		};
 
 		const width = 840;
@@ -120,6 +121,11 @@ export class Utils {
 		context.textAlign = "left";
 		context.fillStyle = "#fff";
 		context.fillText(this.formatNumber(post.xp) + "/" + this.formatNumber(post.toLevel), 680, 145);
+
+		context.font = "13pt 'Poppins Light'";
+		context.textAlign = "left";
+		context.fillStyle = "#fff";
+		context.fillText("Voice Chat Time: " + String(Math.ceil(post.time / 1000 / 60) + "mins."), 524, 125);
 		/** Texts **/
 
 		/** Background PINS **/
@@ -163,8 +169,7 @@ export class Utils {
 			ctx.closePath();
 		}
 
-		const percentage = (post.xp / post.toLevel) * 506;
-		const rectWidth = percentage;
+		const rectWidth = (post.xp / post.toLevel) * 506;
 		const rectHeight = 28;
 		const cornerRadius = 15;
 
@@ -196,7 +201,6 @@ export class Utils {
 
 
 		const buffer: any = canvas.toBuffer("image/png");
-		const img = Buffer.from(buffer, 'base64');
 
 		return buffer;
 	}
