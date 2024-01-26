@@ -5,6 +5,7 @@ export interface IGuildMemberModel extends Document {
 	userID: string;
 	level: number;
 	xp: number;
+	messages: number;
 }
 
 export const GuildMemberSchema = new Schema<IGuildMemberModel>({
@@ -17,6 +18,11 @@ export const GuildMemberSchema = new Schema<IGuildMemberModel>({
 		required: true,
 	},
 	level: {
+		type: Number,
+		required: true,
+		default: 0,
+	},
+	messages: {
 		type: Number,
 		required: true,
 		default: 0,

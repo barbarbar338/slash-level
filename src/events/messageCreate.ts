@@ -56,11 +56,12 @@ const MessageEvent: SlashLevel.IEvent = {
 				guildID: message.guild.id,
 				userID: message.author.id,
 				xp: 0,
+				messages: 0,
 				level: 0,
 			});
 
-		guildMemberModel.xp =
-			guildMemberModel.xp + client.utils.randomInt(5, 25);
+		guildMemberModel.xp = guildMemberModel.xp + client.utils.randomInt(5, 25);
+		guildMemberModel.messages = guildMemberModel.messages + 1;
 		const { level, xp } = guildMemberModel;
 		let leveled = false;
 		const currentLevel = Math.floor(0.15 * Math.sqrt(xp + 1));
