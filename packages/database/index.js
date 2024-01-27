@@ -1,9 +1,9 @@
 import { Sequelize } from "sequelize";
-import { env } from "./env";
+import { env } from "./env.js";
 
-export * from "./models/GuildMemberModel";
-export * from "./models/GuildModel";
-export * from "./models/UserModel";
+export * from "./models/GuildMemberModel.js";
+export * from "./models/GuildModel.js";
+export * from "./models/UserModel.js";
 
 /**
  * Connects to database
