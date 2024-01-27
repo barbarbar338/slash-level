@@ -4,7 +4,7 @@
  * @param {Array<T>} arr array of elements
  * @returns {T} random element
  */
-export function getRandomElement(arr) {
+function getRandomElement(arr) {
 	return arr[Math.floor(Math.random() * arr.length)];
 }
 
@@ -14,7 +14,7 @@ export function getRandomElement(arr) {
  * @param {number} max highest limit
  * @returns {number} random integer between `min` and `max`
  */
-export function getRandomIntBetween(min, max) {
+function getRandomIntBetween(min, max) {
 	return min + Math.floor(Math.random() * (max - min + 1));
 }
 
@@ -24,7 +24,7 @@ export function getRandomIntBetween(min, max) {
  * @param {Array<Array<T>>} arr array of arrays
  * @returns {Array<T>} Flat array
  */
-export function flattenArray(arr) {
+function flattenArray(arr) {
 	return arr.reduce((acc, val) => [...acc, ...val], []);
 }
 
@@ -33,7 +33,7 @@ export function flattenArray(arr) {
  * @param {number} num number to format
  * @returns {string} formatted number
  */
-export function formatNumber(num) {
+function formatNumber(num) {
 	if (num < 1000) return num.toString();
 
 	let length = num.toString().length;
@@ -47,3 +47,5 @@ export function formatNumber(num) {
 
 	return (outputNum + short).trim();
 }
+
+export { flattenArray, formatNumber, getRandomElement, getRandomIntBetween };

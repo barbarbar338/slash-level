@@ -1,26 +1,19 @@
 import { Sequelize } from "sequelize";
-import { env } from "./env.js";
 
-export * from "./models/GuildMemberModel.js";
-export * from "./models/GuildModel.js";
-export * from "./models/UserModel.js";
+import { GuildMemberModel } from "./models/GuildMemberModel.js";
+import { GuildModel } from "./models/GuildModel.js";
+import { UserModel } from "./models/UserModel.js";
+import { sequelize } from "./sequelize.js";
 
 /**
  * Connects to database
  * @returns {Promise<Sequelize>} Sequelize instance
  */
-export const connect = async (options) => {
-	const sequelize = new Sequelize({
-		dialect: "postgres",
-		host: env.DB_HOST,
-		port: env.DB_PORT,
-		username: env.DB_USERNAME,
-		password: env.DB_PASSWORD,
-		database: env.DB_DATABASE,
-	});
-
+async function connect() {
 	await sequelize.authenticate();
 	await sequelize.sync({ force: true });
 
 	return sequelize;
-};
+}
+
+export { GuildMemberModel, GuildModel, UserModel, connect, sequelize };
