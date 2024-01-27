@@ -1,7 +1,7 @@
 import { defineConfig } from "taze";
 
 export default defineConfig({
-	exclude: ["@repo/*"],
+	exclude: ["@slash-level/*"],
 	recursive: true,
 	force: true,
 });

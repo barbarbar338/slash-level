@@ -5,13 +5,10 @@
 	"scripts": {
 		"build": "turbo build",
 		"dev": "turbo dev",
-		"lint": "turbo lint",
 		"format": "prettier --write .",
 		"update": "taze latest -w"
 	},
 	"devDependencies": {
-		"@repo/eslint-config": "*",
-		"@repo/typescript-config": "*",
 		"prettier": "^3.2.4",
 		"taze": "^0.13.1",
 		"turbo": "latest"
