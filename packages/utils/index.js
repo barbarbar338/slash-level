@@ -1,3 +1,6 @@
+import { readdirSync, statSync } from "fs";
+import { extname, resolve } from "path";
+
 /**
  * Gets a random element from array
  * @template T
@@ -48,4 +51,37 @@ function formatNumber(num) {
 	return (outputNum + short).trim();
 }
 
-export { flattenArray, formatNumber, getRandomElement, getRandomIntBetween };
+/**
+ * Recursively reads the directory
+ * @param {string} dir Directory to read files
+ * @param {string} [extension='.js'] File extension to filter, default: `.js`
+ * @returns {Array<string>} All files in the directory
+ */
+function readDirRecursive(dir, extension = ".js") {
+	const results = [];
+
+	((path) => {
+		const files = readdirSync(path);
+
+		for (const file of files) {
+			const filePath = resolve(dir, file);
+			const stats = statSync(filePath);
+
+			if (stats.isDirectory()) {
+				read(filePath);
+			} else if (extname(filePath) == extension) {
+				results.push(filePath);
+			}
+		}
+	})(dir);
+
+	return results;
+}
+
+export {
+	flattenArray,
+	formatNumber,
+	getRandomElement,
+	getRandomIntBetween,
+	readDirRecursive,
+};
