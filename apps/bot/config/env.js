@@ -1,10 +1,12 @@
-import { config } from "dotenv";
-import { cleanEnv, str } from "envalid";
+const { config } = require("dotenv");
+const { cleanEnv, str } = require("envalid");
 
 config();
 
-export const env = cleanEnv(process.env, {
+const env = cleanEnv(process.env, {
 	BOT_TOKEN: str({
 		desc: "Discord bot token",
 	}),
 });
+
+module.exports = { env };

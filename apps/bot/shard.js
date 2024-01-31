@@ -1,6 +1,6 @@
-import { logger } from "@slash-level/logger";
-import { ShardingManager } from "discord.js";
-import { CONFIG } from "./config/index.js";
+const { logger } = require("@slash-level/logger");
+const { ShardingManager } = require("discord.js");
+const { CONFIG } = require("./config/index.js");
 
 const manager = new ShardingManager("./slashLevel.js", {
 	respawn: true,

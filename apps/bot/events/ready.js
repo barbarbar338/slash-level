@@ -36,4 +36,4 @@ async function execute(client) {
 	}
 }
 
-export default { execute, name };
+exports = { execute, name };

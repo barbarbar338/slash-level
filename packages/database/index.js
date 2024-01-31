@@ -1,9 +1,9 @@
-import { Sequelize } from "sequelize";
+const { Sequelize } = require("sequelize");
 
-import { GuildMemberModel } from "./models/GuildMemberModel.js";
-import { GuildModel } from "./models/GuildModel.js";
-import { UserModel } from "./models/UserModel.js";
-import { sequelize } from "./sequelize.js";
+const { GuildMemberModel } = require("./models/GuildMemberModel.js");
+const { GuildModel } = require("./models/GuildModel.js");
+const { UserModel } = require("./models/UserModel.js");
+const { sequelize } = require("./sequelize.js");
 
 /**
  * Connects to database
@@ -16,4 +16,4 @@ async function connect() {
 	return sequelize;
 }
 
-export { GuildMemberModel, GuildModel, UserModel, connect, sequelize };
+exports = { GuildMemberModel, GuildModel, UserModel, connect, sequelize };

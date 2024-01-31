@@ -1,5 +1,5 @@
-import { readdirSync, statSync } from "fs";
-import { extname, resolve } from "path";
+const { readdirSync, statSync } = require("fs");
+const { extname, resolve } = require("path");
 
 /**
  * Gets a random element from array
@@ -78,7 +78,7 @@ function readDirRecursive(dir, extension = ".js") {
 	return results;
 }
 
-export {
+exports = {
 	flattenArray,
 	formatNumber,
 	getRandomElement,

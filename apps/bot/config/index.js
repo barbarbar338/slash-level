@@ -1,7 +1,7 @@
-import { ActivityType } from "discord.js";
-import { env } from "./env.js";
+const { ActivityType } = require("discord.js");
+const { env } = require("./env.js");
 
-export const CONFIG = {
+const CONFIG = {
 	...env,
 	PRESENCE: {
 		activity: {
@@ -29,3 +29,5 @@ export const CONFIG = {
 		status: ["idle", "online", "dnd"],
 	},
 };
+
+module.exports = { CONFIG };

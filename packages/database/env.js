@@ -1,9 +1,9 @@
-import { config } from "dotenv";
-import { cleanEnv, num, str } from "envalid";
+const { config } = require("dotenv");
+const { cleanEnv, num, str } = require("envalid");
 
 config();
 
-export const env = cleanEnv(process.env, {
+const env = cleanEnv(process.env, {
 	DB_HOST: str({
 		default: "localhost",
 		desc: "Postgres database host",
@@ -25,3 +25,5 @@ export const env = cleanEnv(process.env, {
 		desc: "Postgres database name",
 	}),
 });
+
+exports = { env };

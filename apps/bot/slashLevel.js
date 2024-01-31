@@ -1,5 +1,5 @@
-import { logger } from "@slash-level/logger";
-import { SlashLevel } from "./struct/SlashLevel.js";
+const { logger } = require("@slash-level/logger");
+const { SlashLevel } = require("./struct/SlashLevel.js");
 
 const slashLevel = new SlashLevel();
 

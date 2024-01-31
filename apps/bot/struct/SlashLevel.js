@@ -1,10 +1,10 @@
-import { connect, sequelize } from "@slash-level/database";
-import { logger } from "@slash-level/logger";
-import * as utils from "@slash-level/utils";
-import { Client } from "discord.js";
-import { CONFIG } from "../config/index.js";
+const { connect, sequelize } = require("@slash-level/database");
+const { logger } = require("@slash-level/logger");
+const utils = require("@slash-level/utils");
+const { Client } = require("discord.js");
+const { CONFIG } = require("../config/index.js");
 
-export class SlashLevel extends Client {
+class SlashLevel extends Client {
 	config = CONFIG;
 	utils = utils;
 	logger = logger;
@@ -80,3 +80,5 @@ export class SlashLevel extends Client {
 		this.logger.info("Connected, ready to rock!");
 	}
 }
+
+exports = { SlashLevel };

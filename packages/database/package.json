@@ -3,7 +3,6 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"license": "MIT",
-	"type": "module",
 	"dependencies": {
 		"dotenv": "^16.4.1",
 		"envalid": "^8.0.0",

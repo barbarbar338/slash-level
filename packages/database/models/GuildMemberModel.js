@@ -1,7 +1,7 @@
-import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../sequelize.js";
+const { DataTypes, Model } = require("sequelize");
+const { sequelize } = require("../sequelize.js");
 
-export class GuildMemberModel extends Model {}
+class GuildMemberModel extends Model {}
 
 GuildMemberModel.init(
 	{
@@ -27,3 +27,5 @@ GuildMemberModel.init(
 	},
 	{ sequelize, modelName: "GuildMemberModel" },
 );
+
+exports = GuildMemberModel;
