@@ -1,4 +1,4 @@
-FROM ubuntu:22.10
+FROM ubuntu:22.04
 
 RUN apt update && apt upgrade -y && apt install -y git make gcc g++ python3 python3-pip build-essential software-properties-common curl wget
 
