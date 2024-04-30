@@ -1,6 +1,6 @@
 FROM node:19.1.0-alpine3.16
 
-RUN apk update && apk add --no-cache build-essential
+RUN apk update && apk add --no-cache libc6-compat
 
 EXPOSE 8080
 
