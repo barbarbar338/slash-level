@@ -1,6 +1,12 @@
-FROM node:19.1.0-alpine3.16
+FROM ubuntu:22.10
 
-RUN apk update && apk add --no-cache gcompat
+RUN apt update && apt upgrade -y && apt install -y git make gcc g++ python3 python3-pip build-essential software-properties-common curl wget
+
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+
+RUN apt install -y nodejs
+
+RUN npm install -g yarn
 
 EXPOSE 8080
 
