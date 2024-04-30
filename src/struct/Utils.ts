@@ -1,52 +1,15 @@
 import { createCanvas, loadImage } from "canvas";
+import * as sharp from "sharp";
+
+const statusColors = {
+	online: "#00ff00",
+	invisible: "#d1d1e0",
+	offline: "#d1d1e0",
+	dnd: "#ff3300",
+	idle: "#ffff00",
+};
 
 export class Utils {
-
-	public getMaxNextLine = (input: any, maxChars = 20) => {
-		// Split the string into an array of words.
-		const allWords = input.split(" ");
-		// Find the index in the words array at which we should stop or we will exceed
-		// maximum characters.
-		const lineIndex = allWords.reduce((prev: { done: any; position: number; }, cur: string | any[], index: any) => {
-			if (prev?.done) return prev;
-			const endLastWord = prev?.position || 0;
-			const position = endLastWord + 1 + cur.length;
-			return position >= maxChars ? { done: true, index } : { position, index };
-		});
-		// Using the index, build a string for this line ...
-		const line = allWords.slice(0, lineIndex.index).join(" ");
-		// And determine what's left.
-		const remainingChars = allWords.slice(lineIndex.index).join(" ");
-		// Return the result.
-		return { line, remainingChars };
-	};
-
-	public formatTitle = (title: any) => {
-		let output: any = [];
-		// If the title is 40 characters or longer, look to add ellipses at the end of
-		// the second line.
-		if (title.length >= 40) {
-			const firstLine = this.getMaxNextLine(title);
-			const secondLine = this.getMaxNextLine(firstLine.remainingChars);
-			output = [firstLine.line];
-			let fmSecondLine = secondLine.line;
-			if (secondLine.remainingChars.length > 0) fmSecondLine += " ...";
-			output.push(fmSecondLine);
-		}
-			// If 20 characters or longer, add the entire second line, using a max of half
-			// the characters, making the first line always slightly shorter than the
-		// second.
-		else if (title.length >= 20) {
-			const firstLine = this.getMaxNextLine(title, title.length / 2);
-			output = [firstLine.line, firstLine.remainingChars];
-		}
-		// Otherwise, return the short title.
-		else {
-			output = [title];
-		}
-
-		return output;
-	};
 	public random = <T>(array: T[]) =>
 		array[Math.floor(Math.random() * array.length)];
 
@@ -57,7 +20,7 @@ export class Utils {
 		array.reduce((acc, val) => [...acc, ...val], []);
 
 	public calculateRequiredExp = (level: number) =>
-		Math.floor((level / 0.15) * (level / 0.15));
+		Math.floor(Math.pow(level / 0.15, 2));
 
 	public resolveDBStatus = (state: number) => {
 		switch (state) {
@@ -87,120 +50,134 @@ export class Utils {
 		return longNumber < 999 ? `${longNumber}` : (outputNum + short).trim();
 	};
 
-	public createImage = async (tag: any, level: any, xp: any, requiredXP: any, avatar: any, userTime: number) => {
-		const post = {
-			nickname: tag,
-			rank: level,
-			xp: xp,
-			toLevel: requiredXP,
-			avatar: avatar,
-			time: userTime
-		};
+	private invertColor(hex: string, bw: boolean): string {
+		if (hex.indexOf("#") === 0) hex = hex.slice(1);
+		if (hex.length === 3)
+			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+		const red = parseInt(hex.slice(0, 2), 16);
+		const green = parseInt(hex.slice(2, 4), 16);
+		const blue = parseInt(hex.slice(4, 6), 16);
+		if (bw)
+			return red * 0.299 + green * 0.587 + blue * 0.114 > 186
+				? "#000000"
+				: "#FFFFFF";
+		const newRed = ([0, 0] + (255 - red).toString(16)).slice(-2);
+		const newGreen = ([0, 0] + (255 - green).toString(16)).slice(-2);
+		const newBlue = ([0, 0] + (255 - blue).toString(16)).slice(-2);
+		return "#" + newRed + newGreen + newBlue;
+	}
 
-		const width = 840;
-		const height = 214;
+	private async toExtension(
+		buffer: Buffer,
+		extension: "png" | "jpeg" | "webp",
+	) {
+		return await sharp(buffer)
+			[extension]({
+				quality: 70,
+			})
+			.toBuffer();
+	}
 
-		const canvas = createCanvas(width, height);
-		const context = canvas.getContext("2d");
+	public async createLevelCard(
+		xp: number,
+		level: number,
+		xpToLevel: number,
+		position: number,
+		avatarURL: string,
+		status: keyof typeof statusColors,
+		tag: string,
+		color: string,
+		extension?: "png" | "jpeg" | "webp",
+	): Promise<Buffer> {
+		extension = extension ? extension : "png";
 
+		const avatarImage = await loadImage(avatarURL);
+		const percent = Math.floor((100 * xp) / xpToLevel);
+		const barWidth = Math.floor((635 * percent) / 100);
+		const defaultColor = color ? `#${color}` : "#248f24";
 
-		/** Background **/
-		context.fillStyle = "#010144";
-		context.fillRect(0, 0, width, height);
-		/** Background **/
+		const canvas = createCanvas(934, 282);
+		const ctx = canvas.getContext("2d");
 
-		/** Texts **/
+		ctx.fillStyle = "#23272A";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		context.font = "16pt 'Poppins Regular'";
-		context.textAlign = "left";
-		context.fillStyle = "#fff";
+		const borderRadius10 = canvas.height * 0.1;
+		ctx.fillStyle = "#16181A";
+		ctx.beginPath();
+		ctx.moveTo(20 + borderRadius10, 37);
+		ctx.lineTo(910 - borderRadius10, 37);
+		ctx.quadraticCurveTo(910, 37, 910, 37 + borderRadius10);
+		ctx.lineTo(910, 248 - borderRadius10);
+		ctx.quadraticCurveTo(910, 248, 910 - borderRadius10, 248);
+		ctx.lineTo(20 + borderRadius10, 248);
+		ctx.quadraticCurveTo(20, 248, 20, 248 - borderRadius10);
+		ctx.lineTo(20, 37 + borderRadius10);
+		ctx.quadraticCurveTo(20, 37, 20 + borderRadius10, 37);
+		ctx.closePath();
+		ctx.fill();
 
-		const titleText = this.formatTitle(post.nickname);
-		context.fillText(titleText[0], 254, 145);
-		context.font = "13pt 'Poppins Light'";
-		context.textAlign = "left";
-		context.fillStyle = "#fff";
-		context.fillText(this.formatNumber(post.xp) + "/" + this.formatNumber(post.toLevel), 680, 145);
+		const avatarRadius = 80;
+		const avatarX = 43 + avatarRadius;
+		const avatarY = 63 + avatarRadius;
+		ctx.save();
+		ctx.beginPath();
+		ctx.arc(avatarX, avatarY, avatarRadius, 0, Math.PI * 2, true);
+		ctx.closePath();
+		ctx.clip();
+		ctx.drawImage(avatarImage, 43, 63, 160, 160);
+		ctx.restore();
 
-		context.font = "13pt 'Poppins Light'";
-		context.textAlign = "left";
-		context.fillStyle = "#fff";
-		context.fillText("Voice Chat Time: " + String(Math.ceil(post.time / 1000 / 60) + "mins."), 524, 125);
-		/** Texts **/
+		ctx.lineWidth = 4;
+		ctx.strokeStyle = "#000000";
+		ctx.stroke();
 
-		/** Background PINS **/
-		const pin = await loadImage(__dirname + "/../assets/pin1.png")
-		context.drawImage(pin, 151, -8, 74, 74);
-		const pin2 = await loadImage(__dirname + "/../assets/pin2.png")
-		context.drawImage(pin2, 28, 56, 44, 44);
-		const pin3 = await loadImage(__dirname + "/../assets/pin3.png")
-		context.drawImage(pin3, -41, 121, 135, 135);
-		const pin4 = await loadImage(__dirname + "/../assets/pin4.png")
-		context.drawImage(pin4, 201, 170, 36, 36);
-		const pin5 = await loadImage(__dirname + "/../assets/pin5.png")
-		context.drawImage(pin5, 750, 171, 74, 73);
-		const pin6 = await loadImage(__dirname + "/../assets/pin6.png")
-		context.drawImage(pin6, 747, -40, 167, 167);
-		/** Background PINS **/
+		ctx.beginPath();
+		ctx.arc(185, 195, 20, 0, Math.PI * 2, true);
+		ctx.closePath();
+		ctx.lineWidth = 8;
+		ctx.strokeStyle = "#000000";
+		ctx.stroke();
+		ctx.fillStyle = statusColors[status];
 
-		/** Progress BG and Background Objects **/
-		const ellips = await loadImage(__dirname + "/../assets/ellips1.png")
-		context.drawImage(ellips, -90, -144, 300, 300);
-		const ellips2 = await loadImage(__dirname + "/../assets/ellips2.png")
-		context.drawImage(ellips2, 610, 50, 300, 300);
-		const progress = await loadImage(__dirname + "/../assets/progress.png")
-		context.drawImage(progress, 254, 155, 506, 28);
+		ctx.fill();
 
-		/** Progress BG and Background Objects **/
+		ctx.fillStyle = "#484b4e";
+		ctx.fillRect(256, 179, 635, 34);
 
-		/** Progress Bar **/
-		function drawRoundedRect(ctx: {
-			beginPath: () => void;
-			moveTo: (arg0: any, arg1: any) => void;
-			arcTo: (arg0: any, arg1: any, arg2: any, arg3: any, arg4: any) => void;
-			closePath: () => void;
-		}, x: number, y: number, width: number, height: number, radius: number) {
-			ctx.beginPath();
-			ctx.moveTo(x + radius, y);
-			ctx.arcTo(x + width, y, x + width, y + height, radius);
-			ctx.arcTo(x + width, y + height, x, y + height, radius);
-			ctx.arcTo(x, y + height, x, y, radius);
-			ctx.arcTo(x, y, x + width, y, radius);
-			ctx.closePath();
-		}
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#000000";
+		ctx.stroke();
 
-		const rectWidth = (post.xp / post.toLevel) * 506;
-		const rectHeight = 28;
-		const cornerRadius = 15;
+		ctx.fillStyle = defaultColor;
+		ctx.fillRect(256, 180, barWidth, 32);
 
-		drawRoundedRect(context, 254, 155, rectWidth, rectHeight, cornerRadius);
-		context.fillStyle = '#8b17ef';
-		context.fill();
-		/** Progress Bar **/
+		ctx.fillStyle = "#FEFEFE";
+		ctx.font = "24px Sans";
+		ctx.textAlign = "start";
+		ctx.fillText(tag, 260, 165);
 
-		context.font = "11pt 'Poppins Bold'";
-		context.textAlign = "left";
-		context.fillStyle = "#fff";
-		context.fillText("Level " + post.rank, 264, 174);
+		ctx.textAlign = "right";
+		ctx.fillStyle = "#7F8384";
+		ctx.fillText("/ " + this.formatNumber(xpToLevel) + " XP", 880, 165);
 
-		/** Avatar **/
-		const avatarLink = await loadImage(post.avatar)
-		context.font = "18pt 'Poppins Bold'";
-		context.textAlign = "left";
-		context.fillStyle = "#fff";
-		context.fillText("Rank #" + post.rank, 630, 50);
-		/** Avatar **/
+		const { width } = ctx.measureText(
+			"/ " + this.formatNumber(xpToLevel) + " XP",
+		);
 
-		/** Avatar Decoration **/
-		context.beginPath();
-		context.arc(150, 107, 70, 0, Math.PI * 2, true);
-		context.closePath();
-		context.clip();
-		context.drawImage(avatarLink, 80, 37, 140, 140);
-		/** Avatar Decoration **/
+		ctx.fillStyle = "#FEFEFE";
+		ctx.fillText(this.formatNumber(xp), 870 - width, 165);
 
+		ctx.fillStyle = this.invertColor(defaultColor, true);
+		ctx.fillText(this.formatNumber(level) + " Level", 640, 205);
 
-		const buffer: any = canvas.toBuffer("image/png");
+		ctx.fillStyle = defaultColor;
+		ctx.textAlign = "right";
+		ctx.fillText(`Rank: #${this.formatNumber(position)}`, 870, 90);
+
+		const canvasBuffer = canvas.toBuffer();
+
+		const buffer = await this.toExtension(canvasBuffer, extension);
 
 		return buffer;
 	}

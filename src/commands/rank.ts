@@ -1,14 +1,7 @@
-import { SlashCommandBuilder,AttachmentBuilder } from "discord.js";
+import { AttachmentBuilder, SlashCommandBuilder } from "discord.js";
 import { CONFIG } from "../config";
 import { GuildMemberModel } from "../models/GuildMemberModel";
 import { UserModel } from "../models/UserModel";
-import { registerFont } from "canvas";
-import { GuildMemberVoiceModel } from "../models/GuildMemberVoiceModel";
-
-registerFont(__dirname + '/../assets/fonts/Poppins-Bold.ttf', { family: 'Poppins Bold' });
-registerFont(__dirname + '/../assets/fonts/Poppins-Light.ttf', { family: 'Poppins Light' });
-registerFont(__dirname + '/../assets/fonts/Poppins-Regular.ttf', { family: 'Poppins Regular' });
-
 
 const RankCommand: SlashLevel.ICommand = {
 	builder: new SlashCommandBuilder()
@@ -58,25 +51,28 @@ const RankCommand: SlashLevel.ICommand = {
 		const { xp, level } = guildMemberModel;
 		const requiredXP = client.utils.calculateRequiredExp(level + 1);
 
-		const dateObj = new Date();
-		const month = dateObj.getUTCMonth() + 1;
-		const year = dateObj.getUTCFullYear();
-		const newDate = `${year}/${month}`;
-		let voiceModel = await GuildMemberVoiceModel.findOne({
-			guildID: member.guild.id,
-			userID: member.id,
-			month: newDate
-		});
-		const userTime = !voiceModel ? 0 : voiceModel.time;
-		const img = await client.utils.createImage(member.user.tag,level,xp,requiredXP,member.displayAvatarURL({
-			extension: "png",
-		}),userTime)
+		const position =
+			(await GuildMemberModel.countDocuments({
+				guildID: interaction.guild!.id,
+				xp: { $gt: xp },
+			})) + 1;
 
+		const img = await client.utils.createLevelCard(
+			xp,
+			level,
+			requiredXP,
+			position,
+			member.user.displayAvatarURL({ extension: "png", size: 512 }),
+			member.presence?.status || "offline",
+			member.user.username,
+			userModel.rankColor,
+			"png",
+		);
 
 		const file = new AttachmentBuilder(img);
 		return interaction.editReply({
 			content: `🏆 Rank card of **${member.user.tag}**`,
-			files: [file]
+			files: [file],
 		});
 	},
 };
