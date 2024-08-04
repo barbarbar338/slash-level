@@ -7,6 +7,10 @@ kill_timeout = 5
 PORT = 8080
 NODE_ENV = "production"
 
+[build]
+  dockerfile = "Dockerfile"
+
+
 [experimental]
   allowed_public_ports = []
   auto_rollback = true
